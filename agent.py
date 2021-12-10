@@ -23,10 +23,15 @@ print("Just received:\n" + str(cost_matrix))
 
 current_row_index, current_column_index = 0, 0
 
+first_run = True
+
 try:
     if rank == 0:
         while current_row_index < dimensions[1]:
-            previous_row = np.empty(dimensions[1]-1, dtype=np.int64)
+            if first_run:
+                previous_row = np.empty(dimensions[1]-1, dtype=np.int64)
+            else:
+                previous_row = np.empty(dimensions[1]-1 - current_row_index, dtype=np.int64)
             current_row = np.zeros(len(previous_row), dtype=np.int64)
             left_neighbor = np.array(1, dtype=np.int64)
             current_column_index = np.array(1, dtype=np.int64)
@@ -59,11 +64,16 @@ try:
             print("Finished processing current row: " + str(current_row))
 
             comm.Send(current_row, dest=0, tag=8)
+
+            first_run = False
             
 
     if rank == 1:
         while current_column_index < dimensions[0]:
-            previous_column = np.empty(dimensions[0]-1, dtype=np.int64)
+            if first_run:
+                previous_column = np.empty(dimensions[0]-1, dtype=np.int64)
+            else:
+                previous_column = np.empty(dimensions[0]-1 - current_column_index, dtype=np.int64)
             current_column = np.zeros(len(previous_column), dtype=np.int64)
             up_neighbor = np.array(1, dtype=np.int64)
             current_column_index = np.array(1, dtype=np.int64)
@@ -85,17 +95,20 @@ try:
             print("current_row_index: " + str(current_row_index))
 
             if current_row_index > 0:
-                for i in range(0, len(previous_column)):
+                for i in range(len(previous_column)):
                     current_column[i] = min(previous_column[i], up_neighbor, previous_column[i - 1]) + cost_matrix[current_column_index, current_row_index]
                     up_neighbor = current_column[i]
             else:
-                for i in range(0, len(previous_column)):
+                for i in range(len(previous_column)):
                     current_column[i] = up_neighbor + cost_matrix[i + 1, current_row_index]
                     up_neighbor = current_column[i]
 
             print("Finished processing current column: " + str(current_column))
 
             comm.Send(current_column, dest=0, tag=9)
+
+            first_run = False
+
 except:
     print("Breaking")
         

@@ -59,9 +59,9 @@ while not complete:
         req_from_A.append(comm.Isend(left_neighbor, dest=0, tag=2))
         req_from_A.append(comm.Isend(current_row, dest=0, tag=3))
         if not first_run:
-            current_row = np.zeros(N-current_column_index - 1, dtype=np.int64)
+            current_row = np.zeros(N-current_column_index, dtype=np.int64)
         else:
-            current_row = np.zeros(N-current_column_index - 1, dtype=np.int64)
+            current_row = np.zeros(N-current_column_index, dtype=np.int64)
         
         print("Length of returned row: " + str(len(current_row)))
         
@@ -77,9 +77,9 @@ while not complete:
         req_from_B.append(comm.Isend(up_neighbor, dest=1, tag=6))
         req_from_B.append(comm.Isend(current_column, dest=1, tag=7))
         if not first_run:
-            current_column = np.zeros(M-current_row_index - 1, dtype=np.int64)
+            current_column = np.zeros(M-current_row_index, dtype=np.int64)
         else:
-            current_column = np.zeros(M-current_row_index - 1, dtype=np.int64)
+            current_column = np.zeros(M-current_row_index, dtype=np.int64)
         
         print("Length of returned column: " + str(len(current_column)))
         
